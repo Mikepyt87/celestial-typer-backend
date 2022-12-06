@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import Article from "./Article";
 import Score from "./Score";
 
-export default interface Typer {
+export default interface User {
   _id?: ObjectId;
   profilePic: string;
   userName: string;

@@ -1,7 +1,7 @@
 import express from "express";
 import { ObjectId } from "mongodb";
 import { getClient } from "../db";
-import User from "../models/User";
+import Account from "../models/Account";
 
 const typerRouter = express.Router();
 
@@ -13,7 +13,7 @@ const errorResponse = (error: any, res: any) => {
 typerRouter.get("/", async (req, res) => {
   try {
     const client = await getClient();
-    const cursor = client.db().collection<User>("celestialTyper").find();
+    const cursor = client.db().collection<Account>("celestialTyper").find();
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {
@@ -22,47 +22,40 @@ typerRouter.get("/", async (req, res) => {
 });
 
 // .post method
-// creating/adding new users
-typerRouter.post("/addUser", async (req, res) => {
-  const newUser: User = req.body;
+// creating/adding new Accounts
+typerRouter.post("/addAccount", async (req, res) => {
+  const newAccount: Account = req.body;
   try {
     const client = await getClient();
-    await client.db().collection<User>("celestialTyper").insertOne(newUser);
-    res.status(201).json(newUser);
+    await client
+      .db()
+      .collection<Account>("celestialTyper")
+      .insertOne(newAccount);
+    res.status(201).json(newAccount);
   } catch (err) {
     errorResponse(err, res);
   }
 });
 
 //put method
-//update user/ info
+//update Account/ info
 typerRouter.put("/:id", async (req, res) => {
   // what to update
   const id: string = req.params.id;
   // how to update
-  const updatedUser: User = req.body;
-  delete updatedUser._id;
+  const updatedAccount: Account = req.body;
+  delete updatedAccount._id;
   try {
     const client = await getClient();
-    // v1: (updateOne)
     const result = await client
       .db()
-      .collection<User>("celestialTyper")
-      .updateOne({ _id: new ObjectId(id) }, { $inc: { upvotes: 1 } });
-    // ------------------------
-    // v2: preferred (replaceOne)
-    // const result = await client
-    //   .db()
-    //   .collection<Shoutout>("shoutouts")
-    //   .replaceOne({ _id: new ObjectId(id) }, updatedUser);
+      .collection<Account>("celestialTyper")
+      .replaceOne({ _id: new ObjectId(id) }, updatedAccount);
     if (result.modifiedCount) {
-      // something was modified
-      // updatedUser.upvotes++; (used for version 1 - with updateOne)
-      // only for v2 - add back in _id:
-      updatedUser._id = new ObjectId(id);
-      res.status(200).json(updatedUser);
+      updatedAccount._id = new ObjectId(id);
+      res.status(200).json(updatedAccount);
     } else {
-      res.status(404).json({ message: "User not found" });
+      res.status(404).json({ message: "Account not found" });
     }
   } catch (err) {
     errorResponse(err, res);
@@ -76,7 +69,7 @@ typerRouter.delete("/:id", async (req, res) => {
     const client = await getClient();
     const result = await client
       .db()
-      .collection<User>("celestialTyper")
+      .collection<Account>("celestialTyper")
       .deleteOne({ _id: new ObjectId(idToDelete) });
     if (result.deletedCount > 0) {
       // something was deleted

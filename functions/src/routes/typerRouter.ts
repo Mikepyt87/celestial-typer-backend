@@ -21,6 +21,21 @@ typerRouter.get("/", async (req, res) => {
   }
 });
 
+typerRouter.get("/:id", async (req, res) => {
+  const id: string = req.params.id;
+  try {
+    const client = await getClient();
+    const cursor = client
+      .db()
+      .collection<Account>("celestialTyper")
+      .find({ _id: new ObjectId(id) });
+    const results = await cursor.toArray();
+    res.json(results);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
 // .post method
 // creating/adding new Accounts
 typerRouter.post("/addAccount", async (req, res) => {

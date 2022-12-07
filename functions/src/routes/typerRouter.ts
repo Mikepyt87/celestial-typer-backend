@@ -21,15 +21,15 @@ typerRouter.get("/", async (req, res) => {
   }
 });
 
-typerRouter.get("/:id", async (req, res) => {
-  const id: string = req.params.id;
+typerRouter.get("/:uid", async (req, res) => {
+  const uid: string = req.params.uid;
   try {
     const client = await getClient();
     const cursor = client
       .db()
       .collection<Account>("celestialTyper")
-      .find({ _id: new ObjectId(id) });
-    const results = await cursor.toArray();
+      .findOne({ uid: uid });
+    const results = await cursor;
     res.json(results);
   } catch (err) {
     errorResponse(err, res);

@@ -8,4 +8,5 @@ export default interface Account {
   userName: string;
   scores: Score[];
   favoritedArticles: Article[];
+  uid: string;
 }

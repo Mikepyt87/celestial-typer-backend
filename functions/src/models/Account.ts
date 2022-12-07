@@ -9,4 +9,5 @@ export default interface Account {
   scores: Score[];
   favoritedArticles: Article[];
   uid: string;
+  initialSetUp: boolean;
 }

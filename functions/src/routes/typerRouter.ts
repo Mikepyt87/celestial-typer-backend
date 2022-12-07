@@ -13,7 +13,11 @@ const errorResponse = (error: any, res: any) => {
 typerRouter.get("/", async (req, res) => {
   try {
     const client = await getClient();
-    const cursor = client.db().collection<Account>("celestialTyper").find();
+    const cursor = client
+      .db()
+      .collection<Account>("celestialTyper")
+      .find()
+      .sort({ "scores.total": 1 }); //enter more here
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {

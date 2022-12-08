@@ -16,8 +16,11 @@ typerRouter.get("/", async (req, res) => {
     const cursor = client
       .db()
       .collection<Account>("celestialTyper")
-      .find({ $expr: { $gt: [{ $size: "$scores" }, 0] } })
-      .sort({ "scores.adjustedCharactersPerMinute": 1 }); //enter more here
+      .aggregate([
+        { $unwind: "$scores" },
+        { $sort: { "scores.adjustedCharactersPerMinute": 1 } },
+        { $group: { _id: "$_id", scores: { $push: "$scores" } } },
+      ]);
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {

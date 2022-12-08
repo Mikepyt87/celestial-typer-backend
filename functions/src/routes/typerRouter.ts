@@ -17,7 +17,7 @@ typerRouter.get("/", async (req, res) => {
       .db()
       .collection<Account>("celestialTyper")
       .find({ $expr: { $gt: [{ $size: "$scores" }, 0] } })
-      .sort({ "scores.total": 1 }); //enter more here
+      .sort({ "scores.adjustedCharactersPerMinute": 1 }); //enter more here
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {

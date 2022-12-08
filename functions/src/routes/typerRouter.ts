@@ -19,7 +19,12 @@ typerRouter.get("/", async (req, res) => {
       .aggregate([
         { $unwind: "$scores" },
         { $sort: { "scores.adjustedCharactersPerMinute": 1 } },
-        { $group: { _id: "$_id", scores: { $push: "$scores" } } },
+        {
+          $group: {
+            _id: "$_id",
+            scores: { $push: "$scores" },
+          },
+        },
       ]);
     const results = await cursor.toArray();
     res.json(results);

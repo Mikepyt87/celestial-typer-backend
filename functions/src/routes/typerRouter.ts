@@ -116,4 +116,31 @@ typerRouter.delete("/:id", async (req, res) => {
   }
 });
 
+// only used in PostMan to see all users
+typerRouter.get("/all", async (req, res) => {
+  try {
+    const client = await getClient();
+    const cursor = client.db().collection<Account>("celestialTyper").find();
+    const results = await cursor.toArray();
+    res.json(results);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+// only used in PostMan to add multiple accounts at once
+typerRouter.post("/addAccounts", async (req, res) => {
+  const newAccounts: Account[] = req.body;
+  try {
+    const client = await getClient();
+    await client
+      .db()
+      .collection<Account>("celestialTyper")
+      .insertMany(newAccounts);
+    res.status(201).json(newAccounts);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
 export default typerRouter;

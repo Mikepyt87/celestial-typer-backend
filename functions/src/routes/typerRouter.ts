@@ -10,6 +10,7 @@ const errorResponse = (error: any, res: any) => {
   res.status(500).json({ message: "Internal Server Error" });
 };
 
+//* GET method to retrieve user data from MongoDB database
 typerRouter.get("/", async (req, res) => {
   try {
     const client = await getClient();
@@ -17,8 +18,10 @@ typerRouter.get("/", async (req, res) => {
       .db()
       .collection<Account>("celestialTyper")
       .aggregate([
+        //* sorts data by adjustedCharactersPerMinute
         { $unwind: "$scores" },
         { $sort: { "scores.adjustedCharactersPerMinute": 1 } },
+        //*groups sorted data by id, pushes scores to new array.
         {
           $group: {
             _id: "$_id",
@@ -33,6 +36,7 @@ typerRouter.get("/", async (req, res) => {
   }
 });
 
+//* GET method to retrieve data from MongoDB database through the '/:uid' path
 typerRouter.get("/:uid", async (req, res) => {
   const uid: string = req.params.uid;
   try {
@@ -40,6 +44,7 @@ typerRouter.get("/:uid", async (req, res) => {
     const cursor = client
       .db()
       .collection<Account>("celestialTyper")
+      //* query to search database for a specific account
       .findOne({ uid: uid });
     const results = await cursor;
     res.json(results);
@@ -48,8 +53,7 @@ typerRouter.get("/:uid", async (req, res) => {
   }
 });
 
-// .post method
-// creating/adding new Accounts
+//* POST method to create a new account in our MongoDB database. Accessed though '/addAccount' path
 typerRouter.post("/addAccount", async (req, res) => {
   const newAccount: Account = req.body;
   try {
@@ -57,6 +61,7 @@ typerRouter.post("/addAccount", async (req, res) => {
     await client
       .db()
       .collection<Account>("celestialTyper")
+      //* .insertOne method to add new account
       .insertOne(newAccount);
     res.status(201).json(newAccount);
   } catch (err) {
@@ -64,12 +69,11 @@ typerRouter.post("/addAccount", async (req, res) => {
   }
 });
 
-//put method
-//update Account/ info
+//* PUT method to update an existing account in our MongoDB database. Accessed through '/:id' path
 typerRouter.put("/:id", async (req, res) => {
-  // what to update
+  //* what to update
   const id: string = req.params.id;
-  // how to update
+  //* how to update
   const updatedAccount: Account = req.body;
   delete updatedAccount._id;
   try {
@@ -77,6 +81,7 @@ typerRouter.put("/:id", async (req, res) => {
     const result = await client
       .db()
       .collection<Account>("celestialTyper")
+      //* replaceOne method to update account with data included in the request body
       .replaceOne({ _id: new ObjectId(id) }, updatedAccount);
     if (result.modifiedCount) {
       updatedAccount._id = new ObjectId(id);
@@ -89,7 +94,7 @@ typerRouter.put("/:id", async (req, res) => {
   }
 });
 
-//delete method - delete a user
+//* DELETE method used to detlet an account from our MongoDB database. Accessed through '/:id' path
 typerRouter.delete("/:id", async (req, res) => {
   const idToDelete: string = req.params.id;
   try {
@@ -97,6 +102,7 @@ typerRouter.delete("/:id", async (req, res) => {
     const result = await client
       .db()
       .collection<Account>("celestialTyper")
+      //* if the account is found, 'deleteOne()' method is used to delete the account.
       .deleteOne({ _id: new ObjectId(idToDelete) });
     if (result.deletedCount > 0) {
       // something was deleted

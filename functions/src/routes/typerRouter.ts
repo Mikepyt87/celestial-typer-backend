@@ -33,31 +33,6 @@ typerRouter.get("/", async (req, res) => {
   }
 });
 
-typerRouter.get("/all", async (req, res) => {
-  try {
-    const client = await getClient();
-    const cursor = client.db().collection<Account>("celestialTyper").find();
-    const results = await cursor.toArray();
-    res.json(results);
-  } catch (err) {
-    errorResponse(err, res);
-  }
-});
-
-typerRouter.post("/addAccounts", async (req, res) => {
-  const newAccounts: Account[] = req.body;
-  try {
-    const client = await getClient();
-    await client
-      .db()
-      .collection<Account>("celestialTyper")
-      .insertMany(newAccounts);
-    res.status(201).json(newAccounts);
-  } catch (err) {
-    errorResponse(err, res);
-  }
-});
-
 typerRouter.get("/:uid", async (req, res) => {
   const uid: string = req.params.uid;
   try {
@@ -130,6 +105,33 @@ typerRouter.delete("/:id", async (req, res) => {
       // didn't delete anything (not found)
       res.status(404).json({ message: "User not found" });
     }
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+// only used in PostMan to see all users
+typerRouter.get("/all", async (req, res) => {
+  try {
+    const client = await getClient();
+    const cursor = client.db().collection<Account>("celestialTyper").find();
+    const results = await cursor.toArray();
+    res.json(results);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+// only used in PostMan to add multiple accounts at once
+typerRouter.post("/addAccounts", async (req, res) => {
+  const newAccounts: Account[] = req.body;
+  try {
+    const client = await getClient();
+    await client
+      .db()
+      .collection<Account>("celestialTyper")
+      .insertMany(newAccounts);
+    res.status(201).json(newAccounts);
   } catch (err) {
     errorResponse(err, res);
   }

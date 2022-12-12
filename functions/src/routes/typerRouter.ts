@@ -33,6 +33,31 @@ typerRouter.get("/", async (req, res) => {
   }
 });
 
+typerRouter.get("/all", async (req, res) => {
+  try {
+    const client = await getClient();
+    const cursor = client.db().collection<Account>("celestialTyper").find();
+    const results = await cursor.toArray();
+    res.json(results);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+typerRouter.post("/addAccounts", async (req, res) => {
+  const newAccounts: Account[] = req.body;
+  try {
+    const client = await getClient();
+    await client
+      .db()
+      .collection<Account>("celestialTyper")
+      .insertMany(newAccounts);
+    res.status(201).json(newAccounts);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
 typerRouter.get("/:uid", async (req, res) => {
   const uid: string = req.params.uid;
   try {

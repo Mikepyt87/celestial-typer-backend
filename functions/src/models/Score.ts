@@ -3,4 +3,5 @@ export default interface Score {
   total: number;
   adjustedCharactersPerMinute: number;
   userName: string;
+  profilePic: string;
 }

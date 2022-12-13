@@ -37,7 +37,7 @@ typerRouter.get("/", async (req, res) => {
 });
 
 //* GET method to retrieve data from MongoDB database through the '/:uid' path
-typerRouter.get("/:uid", async (req, res) => {
+typerRouter.get("/user/:uid", async (req, res) => {
   const uid: string = req.params.uid;
   try {
     const client = await getClient();
@@ -47,7 +47,11 @@ typerRouter.get("/:uid", async (req, res) => {
       //* query to search database for a specific account
       .findOne({ uid: uid });
     const results = await cursor;
-    res.json(results);
+    if (results) {
+      res.json(results);
+    } else {
+      res.status(404).json({ message: "uid not found" });
+    }
   } catch (err) {
     errorResponse(err, res);
   }
@@ -83,11 +87,11 @@ typerRouter.put("/:id", async (req, res) => {
       .collection<Account>("celestialTyper")
       //* replaceOne method to update account with data included in the request body
       .replaceOne({ _id: new ObjectId(id) }, updatedAccount);
-    if (result.modifiedCount) {
+    if (result.matchedCount) {
       updatedAccount._id = new ObjectId(id);
       res.status(200).json(updatedAccount);
     } else {
-      res.status(404).json({ message: "Account not found" });
+      res.status(404).json({ message: `${id} not found` });
     }
   } catch (err) {
     errorResponse(err, res);
@@ -122,6 +126,7 @@ typerRouter.get("/all", async (req, res) => {
     const client = await getClient();
     const cursor = client.db().collection<Account>("celestialTyper").find();
     const results = await cursor.toArray();
+    // res.json({ message: "test" });
     res.json(results);
   } catch (err) {
     errorResponse(err, res);
